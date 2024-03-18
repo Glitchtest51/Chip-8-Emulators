@@ -1,4 +1,5 @@
-import random, winsound, pygame, keyboard
+import random, pygame, keyboard
+import numpy as np
 from Scripts.Display import Screen
 
 Font = [
@@ -35,6 +36,14 @@ class Emu(object):
         self.V = []
         for i in range(0xF + 1):
             self.V.append(0)
+
+        pygame.mixer.pre_init(frequency=48000, size=32)
+        pygame.mixer.init(frequency=48000, size=32)
+
+        sound = pygame.mixer.Sound(np.sin(3000 * np.arange(48000) / 48000).astype(np.float32))
+        pygame.mixer.Sound.set_volume(sound, 0.1)
+
+        self.buzzer = sound
         
         self.Screen = Screen()
 
@@ -46,13 +55,6 @@ class Emu(object):
 
         self.DelayTimer = 0
         self.SoundTimer = 0
-
-    def decrementTimers(self):
-        if self.DelayTimer > 0:
-            self.DelayTimer -= 1
-        if self.SoundTimer > 0:
-            winsound.Beep(250, 50)
-            self.SoundTimer -= 1
 
     def initMem(self, path):
         for i in range(self.MemorySize):
@@ -221,20 +223,34 @@ class Emu(object):
             print(hex(opcode))
             print(error)
 
+    def decrementTimers(self):
+        if self.DelayTimer > 0:
+            self.DelayTimer -= 1
+        if self.SoundTimer > 0:
+            if pygame.mixer.Sound.get_num_channels(self.buzzer) < 1:
+                self.buzzer.play(-1)
+            self.SoundTimer -= 1
+        else:
+            pygame.mixer.Sound.stop(self.buzzer)
+    
+    def executeCycle(self):
+        self.execute(self.fetch())
+        self.Screen.renderScreen()
+
 
     def main_loop(self):
         pygame.init()
-        clock = pygame.time.Clock()
+        main = pygame.time.Clock()
         Running = True
         while Running:
-            clock.tick(300)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     Running = False
 
-            self.decrementTimers()
-            self.execute(self.fetch())
-            self.Screen.renderScreen()
+            main.tick(200)
+            self.executeCycle()
+            if main.get_time() < 60:
+                self.decrementTimers()
 
             # keyboard.wait("space")
 
