@@ -237,7 +237,6 @@ class Emu(object):
         self.execute(self.fetch())
         self.Screen.renderScreen()
 
-
     def main_loop(self):
         pygame.init()
         main = pygame.time.Clock()
@@ -247,7 +246,7 @@ class Emu(object):
                 if event.type == pygame.QUIT:
                     Running = False
 
-            main.tick(200)
+            main.tick(400)
             self.executeCycle()
             if main.get_time() < 60:
                 self.decrementTimers()
