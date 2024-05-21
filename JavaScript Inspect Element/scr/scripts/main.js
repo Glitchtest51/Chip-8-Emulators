@@ -324,18 +324,15 @@ function execute(opcode) {
                 }
                 break;
             case 0xE:
-                console.log(keys[Keybinds[V[X]]], ' ', Keybinds[V[X]], ' ', V[X]);
                 switch (nn) {
                     case 0x9E:
                         if (keys.includes(Keybinds[V[X]])) {
                             PC += 2;
-                            console.log('clicked');
                         }
                         break;
                     case 0xA1:
                         if (!keys.includes(Keybinds[V[X]])) {
                             PC += 2;
-                            console.log('Not Clicked');
                         }
                         break;
                 }
