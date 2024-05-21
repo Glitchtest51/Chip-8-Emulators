@@ -246,10 +246,10 @@ class Emu(object):
                 if event.type == pygame.QUIT:
                     Running = False
 
-            main.tick(400)
-            self.executeCycle()
-            if main.get_time() < 60:
-                self.decrementTimers()
+            main.tick(60)
+            for i in range(10):
+                self.executeCycle()
+            self.decrementTimers()
 
             # keyboard.wait("space")
 

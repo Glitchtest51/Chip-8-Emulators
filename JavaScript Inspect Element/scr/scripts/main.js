@@ -469,12 +469,11 @@ function loop() {
         renderIntro();
     }
     else if (mode == 'game') {
-        for (let i = 0; i < 20; i ++) {
+        for (let i = 0; i < 10; i ++) {
             executeCycle();
         }
+        decrementTimers();
     }
-
-    decrementTimers();
 }
 
 // /\/\/\
