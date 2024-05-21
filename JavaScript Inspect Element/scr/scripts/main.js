@@ -413,21 +413,18 @@ function executeCycle() {
 // /\/\/\
 
 function loop() {
-    setTimeout(loop, 1000 / 400);
+    setTimeout(loop, 1000/60);
 
     if (mode == 'intro') {
         renderIntro();
     }
     else if (mode == 'game') {
-        executeCycle();
+        for (let i = 0; i < 20; i ++) {
+            executeCycle();
+        }
     }
 
-    let currentTime = performance.now();
-    let elapsedTime = currentTime - lastTime;
-    if (elapsedTime < 60) {
-        decrementTimers();
-        lastTime = currentTime;
-    }
+    decrementTimers();
 }
 
 function keydown(event) {
