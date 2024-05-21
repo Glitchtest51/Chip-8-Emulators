@@ -498,13 +498,17 @@ window.addEventListener('load', () => {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const arrayBuffer = e.target.result;
-                const bytes = new Uint8Array(arrayBuffer);
-                ROM = Array.from(bytes, byte => `0x${byte.toString(16).padStart(2, '0').toUpperCase()}`);
+                const binaryString = e.target.result;
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                ROM = bytes;
             };
-            reader.readAsArrayBuffer(file);
+            reader.readAsBinaryString(file);
         }
     });
+    
 
     const snakeElement = divs[0];
     window.addEventListener('blur', () => {
