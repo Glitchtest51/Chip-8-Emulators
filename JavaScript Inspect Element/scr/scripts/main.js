@@ -349,12 +349,12 @@ function execute(opcode) {
             case 0xE:
                 switch (nn) {
                     case 0x9E:
-                        if (keys.includes(Keybinds[V[X]])) {
+                        if (keys.includes(Keybinds[V[X] % 16])) {
                             PC += 2;
                         }
                         break;
                     case 0xA1:
-                        if (!keys.includes(Keybinds[V[X]])) {
+                        if (!keys.includes(Keybinds[V[X] % 16])) {
                             PC += 2;
                         }
                         break;
@@ -389,7 +389,7 @@ function execute(opcode) {
                     case 0x33:
                         VX = V[X]
                         for (let i = 0; i < VX.toString().length; i++) {
-                            Memory[(i + I) % MemorySize] = int(str(VX)[i]);
+                            Memory[(i + I) % MemorySize] = parseInt(VX.toString()[i]);
                         }
                         break;
                     case 0x55:

@@ -181,10 +181,10 @@ class Emu(object):
                 case 0xE:
                     match nn:
                         case 0x9E:
-                            if pygame.key.get_pressed()[self.Keybinds[self.V[X]]]:
+                            if pygame.key.get_pressed()[self.Keybinds[self.V[X] % 16]]:
                                 self.PC += 2
                         case 0xA1:
-                            if not pygame.key.get_pressed()[self.Keybinds[self.V[X]]]:
+                            if not pygame.key.get_pressed()[self.Keybinds[self.V[X] % 16]]:
                                 self.PC += 2
                 case 0xF:
                     match nn:
