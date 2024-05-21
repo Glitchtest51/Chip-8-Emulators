@@ -247,7 +247,7 @@ function execute(opcode) {
                 V[X] = nn;
                 break;
             case 0x7:
-                V[X] = (V[X] + nn) % 256;
+                V[X] = (V[X] + nn) & 255;
                 break;
             case 0x8:
                 switch (n) {
@@ -273,7 +273,7 @@ function execute(opcode) {
                         else {
                             tmp = 0;
                         }
-                        V[X] = (V[X] + V[Y]) % 256;
+                        V[X] = (V[X] + V[Y]) & 255;
                         V[0xF] = tmp;
                         break;
                     case 0x5:
@@ -283,13 +283,13 @@ function execute(opcode) {
                         else {
                             tmp = 0;
                         }
-                        V[X] = (V[X] - V[Y]) % 256;
+                        V[X] = (V[X] - V[Y]) & 255;
                         V[0xF] = tmp;
                         break;
                     case 0x6:
                         V[X] = V[Y];
                         tmp = V[X] & 0x1;
-                        V[X] = (V[X] >> 1) % 256;
+                        V[X] = (V[X] >> 1) & 255;
                         V[0xF] = tmp;
                         break;
                     case 0x7:
@@ -299,13 +299,13 @@ function execute(opcode) {
                         else {
                             tmp = 0
                         }
-                        V[X] = (V[Y] - V[X]) % 256;
+                        V[X] = (V[Y] - V[X]) & 255;
                         V[0xF] = tmp;
                         break;
                     case 0xE:
                         V[X] = V[Y];
                         tmp = V[X] >> 7;
-                        V[X] = (V[X] << 1) % 256;
+                        V[X] = (V[X] << 1) & 255;
                         V[0xF] = tmp;
                         break;
                 }
