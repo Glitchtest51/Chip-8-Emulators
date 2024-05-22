@@ -169,7 +169,7 @@ class Emu(object):
                     self.V[0xF] = 0
                     for row in range(n):
                         if y + row != 32:
-                            data = self.Memory[self.I + row]
+                            data = self.Memory[(self.I + row) % self.MemorySize]
                             for col in range(8):
                                 if x + col != 64:
                                     if (data >> (7 - col)) & 1 == 1:

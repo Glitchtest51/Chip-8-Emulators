@@ -330,7 +330,7 @@ function execute(opcode) {
                 V[0xF] = 0;
                 for (let row = 0; row < n; row++) {
                     if (y + row !== 32) {
-                        let data = Memory[I + row];
+                        let data = Memory[(I + row) % MemorySize];
                         for (let col = 0; col < 8; col++) {
                             if (x + col !== 64) {
                                 if ((data >> (7 - col)) & 1 === 1) {
