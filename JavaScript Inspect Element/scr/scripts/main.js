@@ -368,7 +368,7 @@ function execute(opcode) {
                     case 0x15:
                         DelayTimer = V[X];
                         break;
-                    case 0x18:
+                    case 0x18:zz
                         SoundTimer = V[X];
                         break;
                     case 0x1E:
@@ -377,9 +377,9 @@ function execute(opcode) {
                     case 0x0A:
                         PC -= 2;
                         Keybinds.forEach((key, index) => {
-                            if (keys[key]) {
-                                PC += 2
-                                V[X] = index
+                            if (keys.includes(key)) {
+                                PC += 2;
+                                V[X] = index;
                             }
                         });
                         break;
