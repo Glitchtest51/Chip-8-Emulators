@@ -426,6 +426,7 @@ function playSound() {
 }
 
 function decrementTimers() {
+    console.log('yaho');
     if (DelayTimer > 0) {
         DelayTimer -= 1
     }
