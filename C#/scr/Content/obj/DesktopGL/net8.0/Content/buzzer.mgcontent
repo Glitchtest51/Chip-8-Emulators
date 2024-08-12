@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>D:/My-Stuff/Documents/Code projects/C#/Chip-8/scr/Content/buzzer.wav</SourceFile>
+  <SourceTime>2024-08-11T18:06:51.0582364-04:00</SourceTime>
+  <DestFile>D:/My-Stuff/Documents/Code projects/C#/Chip-8/scr/Content/bin/DesktopGL/Content/buzzer.xnb</DestFile>
+  <DestTime>2024-08-11T20:03:55.4912827-04:00</DestTime>
+  <Importer>WavImporter</Importer>
+  <ImporterTime>2022-07-26T07:44:56-04:00</ImporterTime>
+  <Processor>SoundEffectProcessor</Processor>
+  <ProcessorTime>2022-07-26T07:44:56-04:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

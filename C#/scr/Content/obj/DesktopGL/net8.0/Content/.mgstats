@@ -1,0 +1,2 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"D:/My-Stuff/Documents/Code projects/C#/Chip-8/scr/Content/buzzer.wav","D:/My-Stuff/Documents/Code projects/C#/Chip-8/scr/Content/bin/DesktopGL/Content/buzzer.xnb","SoundEffectProcessor","SoundEffectContent",192058,192105,0.2169802
