@@ -108,11 +108,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C#\\scr\\Chip-8.csproj",
+      "projectUniqueName": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C# Monogame\\scr\\Chip-8.csproj",
       "projectName": "Chip-8",
-      "projectPath": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C#\\scr\\Chip-8.csproj",
+      "projectPath": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C# Monogame\\scr\\Chip-8.csproj",
       "packagesPath": "C:\\Users\\akacc\\.nuget\\packages\\",
-      "outputPath": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C#\\scr\\obj\\",
+      "outputPath": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C# Monogame\\scr\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

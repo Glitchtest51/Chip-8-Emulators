@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nL8piYxP2pk=",
+  "dgSpecHash": "wbPXxMoXoJc=",
   "success": true,
-  "projectFilePath": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C#\\scr\\Chip-8.csproj",
+  "projectFilePath": "D:\\My-Stuff\\Documents\\Code projects\\EmuDev\\CHIP-8\\Github\\C# Monogame\\scr\\Chip-8.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\akacc\\.nuget\\packages\\monogame.content.builder.task\\3.8.1.303\\monogame.content.builder.task.3.8.1.303.nupkg.sha512",
     "C:\\Users\\akacc\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.1.303\\monogame.framework.desktopgl.3.8.1.303.nupkg.sha512"
