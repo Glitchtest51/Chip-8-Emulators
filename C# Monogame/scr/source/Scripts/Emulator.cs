@@ -103,12 +103,12 @@ namespace Emulator
 
         internal void execute(int opcode) {
             try {
-                int op1 = (opcode & 0xF000) >> 12;
-                int X = (opcode & 0x0F00) >> 8;
-                int Y = (opcode & 0x00F0) >> 4;
-                int nnn = opcode & 0x0FFF;
-                int nn = opcode & 0x00FF;
-                int n = opcode & 0x000F;
+                byte op1 = (byte)((opcode & 0xF000) >> 12);
+                byte X = (byte)((opcode & 0x0F00) >> 8);
+                byte Y = (byte)((opcode & 0x00F0) >> 4);
+                ushort nnn = (ushort)(opcode & 0x0FFF);
+                byte nn = (byte)(opcode & 0x00FF);
+                byte n = (byte)(opcode & 0x000F);
 
                 byte tmp;
 
@@ -146,7 +146,7 @@ namespace Emulator
                         }
                         break;
                     case 0x6:
-                        V[X] = (byte)nn;
+                        V[X] = nn;
                         break;
                     case 0x7:
                         V[X] = (byte)(V[X] + nn);
@@ -288,7 +288,7 @@ namespace Emulator
                             case 0x33:
                                 string VX = V[X].ToString();
                                 for (int i = 0; i < VX.Length; i++) {
-                                    Memory[(i + I) % MemorySize] = (byte)Convert.ToInt16(VX[i]);
+                                    Memory[(i + I) % MemorySize] = Convert.ToByte(VX[i]);
                                 }
                                 break;
                             case 0x55:
