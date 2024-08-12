@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace Display {
     public class Display : Game {
@@ -74,10 +73,10 @@ namespace Display {
             GraphicsDevice.Clear(OFF);
             _spriteBatch.Begin();
 
-            for (int y = 0; y < this.ScreenY; y++) {
-                for (int x = 0; x < this.ScreenX; x++) {
-                    int index = y * this.ScreenX + x;
-                    if (this.screenArray[index] == 1) {
+            for (int y = 0; y < ScreenY; y++) {
+                for (int x = 0; x < ScreenX; x++) {
+                    int index = y * ScreenX + x;
+                    if (screenArray[index] == 1) {
                         _spriteBatch.Draw(pixel, new Rectangle(x * Size, y * Size, Size, Size), ON);
                     }
                 }
@@ -87,17 +86,17 @@ namespace Display {
             base.Draw(gameTime);
         }
         public void ClearScreen() {
-            this.screenArray = new int[this.ScreenX * this.ScreenY];
+            screenArray = new int[ScreenX * ScreenY];
         }
 
         public void TurnOnPix(int X, int Y) {
-            int index = Y * this.ScreenX + X;
-            this.screenArray[index % (this.ScreenX * this.ScreenY)] ^= 1;
+            int index = Y * ScreenX + X;
+            screenArray[index % (ScreenX * ScreenY)] ^= 1;
         }
 
         public int GetPix(int X, int Y) {
-            int index = Y * this.ScreenX + X;
-            return screenArray[index % (this.ScreenX * this.ScreenY)];
+            int index = Y * ScreenX + X;
+            return screenArray[index % (ScreenX * ScreenY)];
         }
     }
 }

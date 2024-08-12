@@ -3,7 +3,6 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
 using Microsoft.Xna.Framework.Input;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Audio;
@@ -42,19 +41,19 @@ namespace Emulator
             Keys.D4, Keys.R, Keys.F, Keys.V
         };
 
-        int PC = 0x200;
-        int I = 0;
-        Stack Stack = new Stack();
-        int[] V = new int[0xF + 1];
+        short PC = 0x200;
+        short I = 0;
+        Stack Stack = new();
+        byte[] V = new byte[0xF + 1];
 
         public Display.Display Screen;
 
         int MemorySize = 4096;
-        int[] Memory;
+        byte[] Memory;
         public string rompath;
 
-        int DelayTimer = 0;
-        int SoundTimer = 0;
+        byte DelayTimer = 0;
+        byte SoundTimer = 0;
 
         public List<Keys> GetPressedKeys() {
             List<Keys> pressedKeys = new List<Keys>();
@@ -70,28 +69,28 @@ namespace Emulator
 
         internal void initMem()
         {
-            this.Memory = new int[this.MemorySize];
+            Memory = new byte[MemorySize];
 
-            for (int i = 0; i < this.Font.Length; i++) 
+            for (int i = 0; i < Font.Length; i++) 
             {
-                this.Memory[i]=this.Font[i];
+                Memory[i]=Font[i];
             }
 
-            using (FileStream fs = new FileStream(this.rompath, FileMode.Open, FileAccess.Read))
+            using (FileStream fs = new FileStream(rompath, FileMode.Open, FileAccess.Read))
             {
                 byte[] rom = new byte[fs.Length];
                 fs.Read(rom, 0, rom.Length);
 
                 for (int i = 0; i < rom.Length; i++)
                 {
-                    this.Memory[i + this.PC]=rom[i];
+                    Memory[i + PC]=rom[i];
                 }
             }
         }
 
         internal int fetch() {
             try {
-                int opcode = (this.Memory[this.PC] << 8) | this.Memory[this.PC + 1];
+                int opcode = (Memory[PC] << 8) | Memory[PC + 1];
                 PC += 2;
                 return opcode;
             }   
@@ -107,137 +106,137 @@ namespace Emulator
                 int op1 = (opcode & 0xF000) >> 12;
                 int X = (opcode & 0x0F00) >> 8;
                 int Y = (opcode & 0x00F0) >> 4;
-                int nnn = (opcode & 0x0FFF);
-                int nn = (opcode & 0x00FF);
-                int n = (opcode & 0x000F);
+                int nnn = opcode & 0x0FFF;
+                int nn = opcode & 0x00FF;
+                int n = opcode & 0x000F;
 
-                int tmp;
+                byte tmp;
 
                 switch (op1) {
                     case 0x0:
                         switch (nn) {
                             case 0xE0:
-                                this.Screen.ClearScreen();
+                                Screen.ClearScreen();
                                 break;
                             case 0xEE:
-                                this.PC = (int)this.Stack.Pop();
+                                PC = (short)Stack.Pop();
                                 break;
                         }
                         break;
                     case 0x1:
-                        this.PC = nnn;
+                        PC = (short)nnn;
                         break;
                     case 0x2:
-                        this.Stack.Push(this.PC);
-                        this.PC = nnn;
+                        Stack.Push(PC);
+                        PC = (short)nnn;
                         break;
                     case 0x3:
-                        if (this.V[X] == nn) {
-                            this.PC += 2;
+                        if (V[X] == nn) {
+                            PC += 2;
                         }
                         break;
                     case 0x4:
-                        if (this.V[X] != nn) {
-                            this.PC += 2;
+                        if (V[X] != nn) {
+                            PC += 2;
                         }
                         break;
                     case 0x5:
-                        if (this.V[X] == this.V[Y]) {
-                            this.PC += 2;
+                        if (V[X] == V[Y]) {
+                            PC += 2;
                         }
                         break;
                     case 0x6:
-                        this.V[X] = nn;
+                        V[X] = (byte)nn;
                         break;
                     case 0x7:
-                        this.V[X] = (this.V[X] + nn) % 256;
+                        V[X] = (byte)(V[X] + nn);
                         break;
                     case 0x8:
                         switch (n) {
                             case 0x0:
-                                this.V[X] = this.V[Y];
+                                V[X] = V[Y];
                                 break;
                             case 0x1:
-                                this.V[X] |= this.V[Y];
-                                this.V[0xF] = 0;
+                                V[X] |= V[Y];
+                                V[0xF] = 0;
                                 break;
                             case 0x2:
-                                this.V[X] &= this.V[Y];
-                                this.V[0xF] = 0;
+                                V[X] &= V[Y];
+                                V[0xF] = 0;
                                 break;
                             case 0x3:
-                                this.V[X] ^= this.V[Y];
-                                this.V[0xF] = 0;
+                                V[X] ^= V[Y];
+                                V[0xF] = 0;
                                 break;
                             case 0x4:
                                 tmp = 0;
-                                if ((this.V[X] + this.V[Y]) > 255) {
+                                if ((V[X] + V[Y]) > 255) {
                                     tmp = 1;
                                 }
-                                this.V[X] = (this.V[X] + this.V[Y]) % 256;
-                                this.V[0xF] = tmp;
+                                V[X] = (byte)(V[X] + V[Y]);
+                                V[0xF] = tmp;
                                 break;
                             case 0x5:
                                 tmp = 0;
-                                if (this.V[X] >= this.V[Y]) {
+                                if (V[X] >= V[Y]) {
                                     tmp = 1;
                                 }
-                                this.V[X] = (this.V[X] - this.V[Y]) % 256;
-                                this.V[0xF] = tmp;
+                                V[X] = (byte)(V[X] - V[Y]);
+                                V[0xF] = tmp;
                                 break;
                             case 0x6:
-                                this.V[X] = this.V[Y];
-                                tmp = this.V[X] & 0x1;
-                                this.V[X] = (this.V[X] >> 1) % 256;
-                                this.V[0xF] = tmp;
+                                V[X] = V[Y];
+                                tmp = (byte)(V[X] & 0x1);
+                                V[X] = (byte)(V[X] >> 1);
+                                V[0xF] = tmp;
                                 break;
                             case 0x7:
                                 tmp = 0;
-                                if (this.V[Y] >= this.V[X]) {
+                                if (V[Y] >= V[X]) {
                                     tmp = 1;
                                 }
-                                this.V[X] = (this.V[Y] - this.V[X]) % 256;
-                                this.V[0xF] = tmp;
+                                V[X] = (byte)(V[Y] - V[X]);
+                                V[0xF] = tmp;
                                 break;
                             case 0xE:
-                                this.V[X] = this.V[Y];
-                                tmp = this.V[X] >> 7;
-                                this.V[X] = (this.V[X] << 1) % 256;
-                                this.V[0xF] = tmp;
+                                V[X] = V[Y];
+                                tmp = (byte)(V[X] >> 7);
+                                V[X] = (byte)(V[X] << 1);
+                                V[0xF] = tmp;
                                 break;
                         }
                         break;
                     case 0x9:
-                        if (this.V[X] != this.V[Y]) {
-                            this.PC += 2;
+                        if (V[X] != V[Y]) {
+                            PC += 2;
                         }
                         break;
                     case 0xA:
-                        this.I = nnn;
+                        I = (short)nnn;
                         break;
                     case 0xB:
-                        this.PC = nnn + this.V[0x0];
+                        PC = (short)(nnn + V[0x0]);
                         break;
                     case 0xC:
                         Random random = new Random();
-                        this.V[X] = random.Next(0, 0xFF) & nn;
+                        V[X] = (byte)(random.Next(0, 0xFF) & nn);
                         break;
                     case 0xD:
-                        int x = this.V[X] % 64;
-                        int y = this.V[Y] % 32;
-                        this.V[0xF] = 0;
+                        int x = V[X] % 64;
+                        int y = V[Y] % 32;
+                        V[0xF] = 0;
                         for (int row = 0; row < n; row++) {
                             if (y + row != 32) {
-                                int data = this.Memory[(this.I + row) % this.MemorySize];
+                                int data = Memory[(I + row) % MemorySize];
                                 for (int col = 0; col < 8; col++) {
                                     if (x + col != 64) {
                                         if (((data >> (7 - col)) & 1) == 1) {
                                             int finalX = (x + col) % 64;
                                             int finalY = (y + row) % 32;
-                                            if (this.Screen.GetPix(finalX, finalY) == 1) {
-                                                this.V[0xF] = 1;
+                                            if (Screen.GetPix(finalX, finalY) == 1) {
+                                                V[0xF] = 1;
                                             }
-                                            this.Screen.TurnOnPix(finalX, finalY);
+                                            Screen.TurnOnPix(finalX, finalY);
                                         }
                                     }
                                 }
@@ -248,12 +247,12 @@ namespace Emulator
                         switch (nn) {
                             case 0x9E:
                                 if (GetPressedKeys().IndexOf(Keybinds.ElementAt(V[X] % 16)) != -1) {
-                                    this.PC += 2;
+                                    PC += 2;
                                 }
                                 break;
                             case 0xA1:
                                 if (GetPressedKeys().IndexOf(Keybinds.ElementAt(V[X] % 16)) == -1) {
-                                    this.PC += 2;
+                                    PC += 2;
                                 }
                                 break;
                         }
@@ -261,48 +260,48 @@ namespace Emulator
                     case 0xF:
                         switch (nn) {
                             case 0x07:
-                                this.V[X] = this.DelayTimer;
+                                V[X] = DelayTimer;
                                 break;
                             case 0x15:
-                                this.DelayTimer = this.V[X];
+                                DelayTimer = V[X];
                                 break;
                             case 0x18:
-                                this.SoundTimer = this.V[X];
+                                SoundTimer = V[X];
                                 break;
                             case 0x1E:
-                                this.I += this.V[X];
+                                I += V[X];
                                 break;
                             case 0x0A:
                                 List<Keys> keys = GetPressedKeys();
-                                this.PC -= 2;
+                                PC -= 2;
                                 for (int i = 0; i < Keybinds.Count; i++) {
                                     Keys key = Keybinds[i];
                                     if (GetPressedKeys().IndexOf(key) == 1) {
-                                        this.PC += 2;
-                                        this.V[X] = i - 1;
+                                        PC += 2;
+                                        V[X] = (byte)(i - 1);
                                     }
                                 }
                                 break;
                             case 0x29:
-                                this.I = (this.V[X] & 0xF) * 5;
+                                I = (byte)((V[X] & 0xF) * 5);
                                 break;
                             case 0x33:
-                                string VX = this.V[X].ToString();
+                                string VX = V[X].ToString();
                                 for (int i = 0; i < VX.Length; i++) {
-                                    this.Memory[(i + this.I) % this.MemorySize] = Convert.ToInt16(VX[i]);
+                                    Memory[(i + I) % MemorySize] = (byte)Convert.ToInt16(VX[i]);
                                 }
                                 break;
                             case 0x55:
                                 for (int i = 0; i < X + 1; i++) {
-                                    this.Memory[(this.I + i) % this.MemorySize] = this.V[i];
+                                    Memory[(I + i) % MemorySize] = V[i];
                                 }
-                                this.I += 1;
+                                I += 1;
                                 break;
                             case 0x65:
                                 for (int i = 0; i < X + 1; i++) {
-                                    this.V[i] = this.Memory[(this.I + i) % this.MemorySize];
+                                    V[i] = Memory[(I + i) % MemorySize];
                                 }
-                                this.I += 1;
+                                I += 1;
                                 break;
                         }
                         break;
@@ -318,8 +317,8 @@ namespace Emulator
 
         internal void decrementTimers() {
             SoundEffectInstance buzzerInstance = Screen.buzzerInstance;
-            if (this.DelayTimer > 0) {
-                this.DelayTimer -= 1;
+            if (DelayTimer > 0) {
+                DelayTimer -= 1;
             }
             if (SoundTimer > 0) {
                 if (buzzerInstance.State == SoundState.Stopped) {
@@ -333,7 +332,7 @@ namespace Emulator
         }
 
         internal void executeCycle() {
-            this.execute(this.fetch());
+            execute(fetch());
         }
     }
 }
