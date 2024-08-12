@@ -1,0 +1,2 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"D:/My-Stuff/Documents/Code projects/EmuDev/CHIP-8/Github/C#/scr/Content/buzzer.wav","D:/My-Stuff/Documents/Code projects/EmuDev/CHIP-8/Github/C#/scr/Content/bin/DesktopGL/Content/buzzer.xnb","SoundEffectProcessor","SoundEffectContent",192058,192105,0.2803187
