@@ -4,7 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>D:/My-Stuff/Documents/Code projects/C#/Chip-8/scr/Content/buzzer.wav</File>
+    <File>D:/My-Stuff/Documents/Code projects/EmuDev/CHIP-8/Github/C#/scr/Content/buzzer.wav</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
