@@ -18,10 +18,11 @@ class Screen:
         return self.screenArray[(y * self.width + x) % len(self.screenArray)]
 
     def renderScreen(self):
-        self.screen.fill((0, 0, 0))
+        OFF = (0, 0, 0)
+        ON = (255, 255, 255)
+        self.screen.fill(OFF)
         for i, pixel in enumerate(self.screenArray):
             if pixel:
                 x, y = i % self.width, i // self.width
-                pygame.draw.rect(self.screen, (255, 255, 255), 
-                               (x * self.size, y * self.size, self.size, self.size))
+                pygame.draw.rect(self.screen, ON, (x * self.size, y * self.size, self.size, self.size))
         pygame.display.flip()

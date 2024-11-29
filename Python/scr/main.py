@@ -1,2 +1,4 @@
 from Scripts.Emulator import Emu
-Emu(input('File Path:')).main_loop()
+
+ROM_Path = input('File Path:')
+Emu(ROM_Path).main_loop()
