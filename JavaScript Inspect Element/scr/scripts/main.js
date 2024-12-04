@@ -2,10 +2,9 @@
 // \/\/\/
 
 // Main
-const gameWidth = 64;
-const gameHeight = 32;
-const introAttributeNames = 'clickchip'.split('');
-const gameAttributeNames = 'playchip'.split('');
+const gameWidth = 64, gameHeight = 32;
+const introAttributeNames = [...'clickchip'];
+const gameAttributeNames = [...'playchip'];
 let mode = 'intro';
 
 let firstElement;
@@ -14,34 +13,12 @@ var map = [];
 
 // Keybinds and Keys
 var keys = [];
-const Keybinds = [
-    88, 49, 50, 51,
-    81, 87, 69, 65,
-    83, 68, 90, 67,
-    52, 82, 70, 86 
-];
+const Keybinds = [88,49,50,51,81,87,69,65,83,68,90,67,52,82,70,86];
 
 // Emulator
 
 // Font
-const Font = [
-    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-    0x20, 0x60, 0x20, 0x20, 0x70, // 1
-    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-    0xF0, 0x80, 0xF0, 0x80, 0x80 // F
-];
+const Font = Array.from('F090909020602070F010F080F0F010F010F09090F01010F080F010F0F080F090F0F0102040F090F090F0F090F010F0F090F090E090E090E0F080808080E09090E0F080F080F0F080F08080').match(/.{2}/g).map(x => parseInt(x, 16));
 
 // Various Vars
 var PC = 0x200;
@@ -58,13 +35,9 @@ var DelayTimer = 0;
 var SoundTimer = 0;
 
 // Sound
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const sampleRate = 48000;
-const buffer = audioCtx.createBuffer(1, sampleRate, sampleRate);
-const data = buffer.getChannelData(0);
-for (let i = 0; i < data.length; i++) {
-    data[i] = Math.sin(2 * Math.PI * 3000 * i / sampleRate);
-}
+const audioCtx = new AudioContext();
+const buffer = audioCtx.createBuffer(1, 48000, 48000);
+buffer.getChannelData(0).forEach((_, i) => buffer.getChannelData(0)[i] = Math.sin(i * 0.393));
 
 let currentSource = null;
 
@@ -85,15 +58,11 @@ function wait(milliseconds) {
 
 // Renders Intro
 function renderIntro() {
-    let i = Math.floor(Math.sin(Date.now()/700) * (divs.length/2) + (divs.length/2));
-
     divs.forEach((div, y) => {
-        if (y == i) {
-            div.setAttribute(introAttributeNames[y % introAttributeNames.length], ' . OKAY now CLICK the SNAKE! . ');
-        }
-        else {
-            div.setAttribute(introAttributeNames[y % introAttributeNames.length], ' . . . . . . . . . . . . . . . ');
-        }
+        div.setAttribute(introAttributeNames[y % introAttributeNames.length], 
+            y === Math.floor(Math.sin(Date.now()/700) * (divs.length/2) + (divs.length/2)) 
+                ? ' . OKAY now CLICK the SNAKE! . ' 
+                : ' . . . . . . . . . . . . . . . ');
     });
 }
 
