@@ -3,3 +3,4 @@
 /C#\ Monogame/.vs
 /C#\ Monogame/scr/obj
 /C#\ Monogame/scr/bin
+**/node_modules/

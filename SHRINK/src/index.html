@@ -1,0 +1,307 @@
+<body style="text-align: center; margin-top: 20px; font-family: sans-serif;">
+    <h1>Chip-8 Emu</h1>
+    <canvas id=c width=64 height=32 style="width: 640px; height: 320px; image-rendering: pixelated; border: 1px solid; cursor: pointer;"></canvas><br><br>
+    <input type=file id=f accept=.ch8>
+    <script>
+        // Decode Base64
+        const decode = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+        // Main
+        const gameWidth = 64;
+        const gameHeight = 32;
+        const introAttributeNames = 'clickchip'.split('');
+        const gameAttributeNames = 'playchip'.split('');
+        let mode = 's';
+        
+        var map = new Uint8Array(gameWidth * gameHeight);
+        const ctx = c.getContext("2d");
+        
+        // Keybinds and Keys
+        var keys = new Set();
+        const Keybinds = "X123QWEASDZC4RFV";
+
+        // Font
+        const Font = decode("8JCQkPAgYCAgcPAQ8IDw8BDwEPCQkPAQEPCA8BDw8IDwkPDwECBAQPCQ8JDw8JDwEPDwkPCQkOCQ4JDg8ICAgPDgkJCQ4PCA8IDw8IDwgIA=");
+        
+        // idk what to comment these are vars for stuff
+        var PC = 0x200;
+        var I = 0;
+        var Stack = [];
+        var V = new Uint8Array(16);
+        var vblank = true;
+        
+        // Memory
+        let MemorySize = 4096;
+        var Memory = new Uint8Array(MemorySize);
+        
+        // Timers
+        var DelayTimer = 0;
+        var SoundTimer = 0;
+        
+        // Init sound
+        const audioCtx = new AudioContext();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.frequency.value = 3000;
+        gainNode.gain.value = 0;
+        oscillator.connect(gainNode).connect(audioCtx.destination);
+        oscillator.start();
+        
+        // Demo ROM (Beep test from: https://github.com/Timendus/chip8-test-suite)
+        let ROM = decode("olTwZWIBgwBkC2ocawyiVPIe8WWiZ9q38BjwFSIs2rfxFSIscgJSMBIOEgDkoRI48AcwABIsAO5gAGE8YgsA4KJn2rfxGOKhEkTat/AY4p4STBJAEwoFCgUKFB4FHgUeFAoFCgUKPBkqyIvIKhk=");
+        
+        // Wait x amount of milliseconds
+        function wait(milliseconds) {
+            return new Promise((resolve, reject) => {
+                setTimeout(resolve, milliseconds);
+            });
+        }
+        
+        // Start game
+        async function startGame() {
+            audioCtx.resume();
+            map.fill(0)
+
+            // Init emu
+            PC = 0x200;
+            I = 0;
+            Stack = [];
+            V.fill(0);
+            DelayTimer = 0;
+            SoundTimer = 0;
+            Memory.fill(0);
+            keys.clear();
+
+            Memory.set(Font);
+            Memory.set(ROM, 512);
+
+            // set gamemode to start
+            mode = 'g'
+        }
+        
+        // Render screen
+        function renderScreen() {
+            c.width = gameWidth;
+            for (let i = 0; i < 2048; i++) {
+                if (map[i]) ctx.fillRect(i & 63, i >> 6, 1, 1);
+            }
+        }
+        
+        // Run opcode
+        function execute(opcode) {
+            let op1 = opcode >> 12;
+            let X = opcode >> 8 & 15;
+            let Y = opcode >> 4 & 15;
+            let nnn = opcode & 4095;
+            let nn = opcode & 255;
+            let n = opcode & 15;
+            let tmp;
+    
+            switch (op1) {
+                case 0x0:
+                    switch (nn) {
+                        case 0xE0:
+                            map.fill(0)
+                            break;
+                        case 0xEE:
+                            PC = Stack.pop();
+                            break;
+                    }
+                    break;
+                case 0x1:
+                    PC = nnn;
+                    break;
+                case 0x2:
+                    Stack.push(PC);
+                    PC = nnn;
+                    break;
+                case 0x3:
+                    if (V[X] == nn) {
+                        PC += 2;
+                    }
+                    break;
+                case 0x4:
+                    if (V[X] != nn) {
+                        PC += 2;
+                    }
+                    break;
+                case 0x5:
+                    if (V[X] == V[Y]) {
+                        PC += 2;
+                    }
+                    break;
+                case 0x6:
+                    V[X] = nn;
+                    break;
+                case 0x7:
+                    V[X] += nn;
+                    break;
+                case 0x8:
+                    switch (n) {
+                        case 0x0:
+                            V[X] = V[Y];
+                            break;
+                        case 0x1:
+                            V[X] |= V[Y];
+                            V[0xF] = 0;
+                            break;
+                        case 0x2:
+                            V[X] &= V[Y];
+                            V[0xF] = 0;
+                            break;
+                        case 0x3:
+                            V[X] ^= V[Y];
+                            V[0xF] = 0;
+                            break;
+                        case 0x4:
+                            tmp = (V[X] + V[Y]) > 255 ? 1 : 0;
+                            V[X] += V[Y];
+                            V[0xF] = tmp;
+                            break;
+                        case 0x5:
+                            tmp = V[X] >= V[Y] ? 1 : 0;
+                            V[X] -= V[Y];
+                            V[0xF] = tmp;
+                            break;
+                        case 0x6:
+                            V[X] = V[Y];
+                            tmp = V[X] & 1;
+                            V[X] >>= 1;
+                            V[0xF] = tmp;
+                            break;
+                        case 0x7:
+                            tmp = V[Y] >= V[X] ? 1 : 0;
+                            V[X] = V[Y] - V[X];
+                            V[0xF] = tmp;
+                            break;
+                        case 0xE:
+                            V[X] = V[Y];
+                            tmp = V[X] >> 7;
+                            V[X] <<= 1;
+                            V[0xF] = tmp;
+                            break;
+                    }
+                    break;
+                case 0x9:
+                    if (V[X] != V[Y]) {
+                        PC += 2;
+                    }
+                    break;
+                case 0xA:
+                    I = nnn;
+                    break;
+                case 0xB:
+                    PC = nnn + V[0x0];
+                    break;
+                case 0xC:
+                    V[X] = Math.random() * 256 & nn;
+                    break;
+                case 0xD:
+                    if (!vblank) { PC -= 2; break; }
+                    vblank = false;
+
+                    let x = V[X] & 63;
+                    let y = V[Y] & 31;
+                    V[0xF] = 0;
+                    for (let row = 0; row < n; row++) {
+                        if (y + row >= gameHeight) break; 
+                        let data = Memory[(I + row) % MemorySize];
+                        for (let col = 0; col < 8; col++) {
+                            if (x + col >= gameWidth) break;  
+                            if ((data >> (7 - col)) & 1) {
+                                if (map[(y + row) * gameWidth + (x + col)] === 1) V[0xF] = 1;
+                                map[(y + row) * gameWidth + (x + col)] ^= 1;
+                            }
+                        }
+                    }
+                    break;
+                case 0xE:
+                    switch (nn) {
+                        case 0x9E:
+                            if (keys.has(Keybinds[V[X] & 15])) {
+                                PC += 2;
+                            }
+                            break;
+                        case 0xA1:
+                            if (!keys.has(Keybinds[V[X] & 15])) {
+                                PC += 2;
+                            }
+                            break;
+                    }
+                break;
+                case 0xF:
+                    switch (nn) {
+                        case 0x07:
+                            V[X] = DelayTimer;
+                            break;
+                        case 0x15:
+                            DelayTimer = V[X];
+                            break;
+                        case 0x18:
+                            SoundTimer = V[X];
+                            break;
+                        case 0x1E:
+                            I += V[X];
+                            break;
+                        case 0x0A:
+                            let pressed = -1;
+                            for (let i = 0; i < 16; i++) {
+                                if (keys.has(Keybinds[i])) {
+                                    pressed = i;
+                                    break;
+                                }
+                            }
+                            if (pressed === -1) {PC -= 2; } else { V[X] = pressed; }
+                            break;
+                        case 0x29:
+                            I = (V[X] & 0xF) * 5
+                            break;
+                        case 0x33:
+                            Memory[I] = V[X] / 100;
+                            Memory[I + 1] = V[X] / 10 % 10;
+                            Memory[I + 2] = V[X] % 10;
+                            break;
+                        case 0x55:
+                            for (let i = 0; i < X + 1; i++) {
+                                Memory[(I + i) % MemorySize] = V[i];
+                            }
+                            I += 1;
+                            break;
+                        case 0x65:
+                            for (let i = 0; i < X + 1; i++) {
+                                V[i] = Memory[(I + i) % MemorySize];
+                            }
+                            I += 1;
+                            break;
+                    }
+                break;
+            }
+        }
+        
+        // Main Loop
+        function loop() {
+            setTimeout(loop, 1000/60);
+            if (mode == "g") {
+                vblank = true;
+                for (let i = 0; i < 10; i ++) {
+                    // Fetch + Execute Cycle
+                    const opcode = (Memory[PC] << 8) | Memory[PC + 1];
+                    PC += 2;
+                    execute(opcode)
+                    renderScreen()
+                }
+                // Decrement Timers
+                if (DelayTimer > 0) DelayTimer -= 1
+                gainNode.gain.value = SoundTimer > 0 ? 0.1 : 0;
+                if (SoundTimer > 0) SoundTimer -= 1;
+            }
+        }
+        
+        // Start loop + Add listeners
+        onkeydown = e => keys.add(e.key.toUpperCase());
+        onkeyup = e => keys.delete(e.key.toUpperCase());
+        c.onclick = startGame;
+        f.onchange = async () => ROM = new Uint8Array(await f.files[0].arrayBuffer());
+        loop();
+    </script>
